@@ -1,6 +1,6 @@
 /* 
-    index.css
-    stylesheet for the index.html page
+index.css
+stylesheet for the index.html page
 */
 
 body {
@@ -9,22 +9,61 @@ body {
 }
 
 /* TODO: tell the browser to include borders and padding in size calculations */
-
+* {
+    box-sizing: border-box;
+}
 /* TODO: constrain the width of <div class="container"> elements to a max of 1140px
 and keep the content horizontally-centered with 1rem of padding on left/right */
-
+.container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 1rem; 
+}
 /* TODO: set background image of the <header> to `header.jpg` in the `img` directory,
 and set text color to white, and ensure the height is at least 200px */
-
+header {
+    background-color: #034975;
+    color: #FFF;
+}
 /* TODO: set the font size of the <h1> in the <header> to 5rem
 and the font weight to 200 */
-
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 200;
+}
 /* TODO: set the height of the SVG icon to 3rem */
-
+header svg {
+    height: 2rem;
+    fill: currentColor;
+}
 /* TODO: make the color of the hyperlink icon white instead of blue
 and when it has focus/hover change the color to #FF9800, 
 from Material Design Color Palette: 
-https://material.io/guidelines/style/color.html#color-color-palette */
+https://material.io/guidelines/style/color.html#color-color-palette 
+
+Focus is used when you tab into an element on the page.*/
+header a {
+    color: #FFF;
+    transition: all 200ms;
+}
+
+header a:hover, header a:focus {
+    color: #FF9800;
+}
+
+header .container {
+    display: flex;
+    align-items: center;
+}
+
+header .page-title {
+    flex: 1;
+}
+
+header .lead {
+    display: none;
+}
 
 /* TODO: make the <div class="col"> elements layout side-by-side instead of stacked */
 
@@ -34,8 +73,102 @@ https://material.io/guidelines/style/color.html#color-color-palette */
     min-height: 150px;
     font-weight: 600;
     color: #FFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+ 
 
 /* TODO: set the background color of every-other <div class="col"> element 
 to #E65100 so that we can see where the column begin/end */
+
+.col:nth-of-type(odd) {
+    background-color: #E65100;
+}
+
+/*
+    Navbar, adds a side drawer
+    z -index makes it go to top
+    transition makes it animate from left to right.
+    Transform is the thing that sets the position, moving 
+    it from left to right.
+*/
+
+nav {
+    background-color: #034975;
+    color: #FFF;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    transform: translateX(-250px); /*shifts it to the left, offscreen, 250 bc size is 250 */
+    transition: transform 500ms;
+    z-index: 1;
+}
+
+.drawer-open nav {
+    transform: translateX(0);
+}
+
+.drawer-open header, 
+.drawer-open main {
+    transform: translateX(250px);
+}
+
+main, header {
+    transition: transform 500ms;
+}
+
+header button {
+    color: #FFF;
+    background-color: transparent;
+    border: none;
+}
+
+/*
+    Rules for when the screen sizes are a specific resolution
+    First when it's 768 minimumm. All bigger sizes will inherit
+    the rules from min 768.
+*/
+@media (min-width: 768px) {
+    header {
+        background-image: url(../img/header.jpg);
+        background-size: cover;
+        min-height: 200px;
+    }
+
+    header .lead {
+        display: block;
+    }
+
+    header h1 {
+        font-size: 5rem;
+    }
+
+    header svg {
+        height: 3rem;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .col {
+        flex: 50%;
+    }
+}
+
+@media (min-width: 992px) {
+    .col {
+        flex: 33%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .col {
+        flex: 1;
+    }
+}
 
