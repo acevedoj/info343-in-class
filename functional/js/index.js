@@ -59,7 +59,73 @@ returned a truthy value
 //the array
 
 
+// This takes the Babynames array found in the babynames file
+// and then uses the filter name and passes it a function that 
+// it uses to filter. The array is then split into two array
+// one for females and one for males.
+/*
+function isMale(record) {
+    return record.sex === 'M';
+}
 
+function isFemale(record) {
+    return record.sex === 'F';
+}
+
+let females = BABYNAMES.filter(isFemale);
+let males = BABYNAMES.filter(isMale);
+*/
+
+/************As one function only, no redundancy*****************/
+// Takes a character 'm' or 'f' and then returns a function
+// that lets you filter.
+// Makes the inputs lowercase so there is no errors. 
+function isSex(sex) {
+    let sexLower = sex.toLowerCase();
+    return function(record) {
+        return record.sex.toLowerCase() === sexLower;
+    };
+}
+
+// Sends m or f to isSex which then returns a function
+// that lets you filter. The function is then stored inside
+// the variables. 
+let isMale = isSex('M');
+let isFemale = isSex('F');
+
+// Uses the functions stored inside the above variables
+// to pass to the filter function which then splits the 
+// array into 2. 
+let female = BABYNAMES.filter(isFemale);
+let male = BABYNAMES.filter(isMale);
+
+
+/**********************Count Under N for babies**********************************/
+function countUnder(amount) {
+    return function(record) {
+        return record.count < amount;
+    }
+}
+
+/******************************************************************* */
+// A predicate is a smaller function, you can combine predicated to 
+// make functions even nicer.
+// Combininig 2 predicate functions
+
+// Takes 2 functions, then returns a new predicate that
+// says both predicate 1 and predicate 2 have to be true. 
+function and(predicate1, predicate2) {
+    return function(record) {
+        return predicate1(record) && predicate2(record);
+    }
+}
+
+// Uses the predicate functions to filter.
+// Sends it then gets back a new filter predicate that it uses
+// Here its isMale and count less than 100
+
+let isMaleUnder100 = and(isMale, countUnder);
+let isFemaleUnder100 = and(isFemale, countUnder);
 
 
 /* SORTING
@@ -77,12 +143,61 @@ the second.
 //to sort the BABYNAMES array based on count
 //and name
 
+// Sort by count
+function byCount(record1, record2) {
+    return record1.count - record2.count;
+}
+
+// Sort by name 
+function byName(record1, record2) {
+    return record1.name.localeCompare(record2.name);
+}
+
+// Sort by count and by name
+// You can tag sort() to the end of filter because
+// filter just returns a new array and sort can be used on arrays
+
+let sortedMales = BABYNAMES.filter(isMale).sort(byCount);
+let sortedFemales = BABYNAMES.filter(isFemale).sort(byName);
 
 
 //TODO: create a descending() function that
 //wraps a comparator function to perform a
 //descending sort instead of an ascending sort
 
+function descending(comparator) {
+    return function(record1, record2) {
+        // comparator is a sorting comparator function
+        // returns a new one that negates the result of
+        // a comparator
+        return -comparator(record1, record2);
+    }
+}
+
+let byCountDescending = descending(byCount);
+sortedMales = BABYNAMES.filter(isMale).sort(byCountDescending);
+
+// Sort by count and then if the counts for something is the same
+// we sort by name. 
+
+function multiKey(comparator1, comparator2) {
+    return function(record1, record2) {
+        let result = comparator1(record1, record2);
+        // If you sort and record 1 and 2 have the same 
+        // values for the first comparison, aka if they're 
+        // equal, then compare by the second comparator
+        // else just return the first comparator result
+        if (result === 0) {
+            return comparator2(record1, record2);
+        } else {
+            return result;
+        }
+    }
+}
+
+byCountDescending = descending(byCount);
+let byNameWithinCount = multiKey(byCountDescending, byName);
+let malesByNameWithinCount = BABYNAMES.filter(isMale).sort(byNameWithinCount);
 
 
 /* SLICING 
@@ -95,6 +210,8 @@ up to but not include.
 //TODO: use .slice() to get the top 10 female baby 
 //name records
 
+let top10Females = BABYNAMES.filter(isFemale)
+    .sort(byCountDescending).slice(0, 10);
 
 /* MAPPING
 Every arrays also has a .map() method, which
@@ -106,15 +223,40 @@ Whatever you transformer function returns is put into
 the output array.
 */
 
+// A map transforms an array by giving it a function
+// like adding +1 to each element for example
+// Returns a new element and then map uses that 
+// to do the task on the entire array
+
 //TODO: use .map() to transform the top 10 female
 //baby name records array into an array of strings
 //containing just the names themselves
 
+/* 
+function getNames(record) {
+    return record.name;
+}
+
+Better version
+*/
+
+function pluck(property) {
+    return function(record) {
+        return record[property];
+    }
+}
+
+let pluckName = pluck("name");
+let pluckCount = pluck("count");
 
 //TODO: use .map() to transform those top 10
 //names into all lower case
 
+function getLowercase(record) {
+    return record.name.toLowerCase();
+}
 
+//console.log(top10Females.map(getNames));
 
 /* REDUCING
 Every array also has a .reduce() method, which
@@ -149,20 +291,29 @@ function randomIntegers(amount, max) {
  * @returns {number} - the updated accumulator
  */
 function sum(accumulator, num) {
-    //TODO: implement this function
+    return accumulator + num;
 }
 
 //TODO: use randomIntegers() to generate an array of 
 //random integers and use .reduce() with sum*() to
 //calculate the sum of those integers.
 
+let randoms = randomIntegers(10, 100);
+console.log(randoms.reduce(sum, 0));
 
 //TODO: now define a max() reducer that reduces
 //an array of numbers to their maximum value.
 //Then use that with .reduce() to find the 
 //maximum value in an array of random integers.
 
+// Takes n1, n2. Returns n2 if its > n1, else n1.
+// Basically, it gets passed to reduce. Compares which is bigger
+// and then passes the bigger value as the new number aka accumalator
+function max(n1, n2) {
+    return n2 > n1 ? n2 : n1;
+}
 
+console.log(randoms.reduce(max, randoms[0]));
 
 //TODO: given that a JavaScript object is really
 //just a map from strings to values, and given
@@ -189,7 +340,11 @@ function sum(accumulator, num) {
  * @returns {Object}
  */
 function countNames(nameMap, record) {
-    //TODO: implement this function
+    if (!nameMap.hasOwnProperty(record.name)) {
+        nameMap[record.name] = 0;
+    }
+    nameMap[record.name]++;
+    return nameMap;
 }
 
 //TODO: use the countNames reducer to generate
@@ -197,12 +352,22 @@ function countNames(nameMap, record) {
 //as keys, with values representing the number of
 //times that name appeared in the array.
 
+// Pass it an array of objects.
+BABYNAMES.reduce(countNames, {});
+
 //TODO: use Object.keys() to get all of the distinct
 //names as an array of strings
 
+let nameArray = Object.keys(BABYNAMES.reduce(countNames, {}));
 
 //TODO: filter that array of keys so that you end
 //up with only the names that appeared twice,
 //which will be all the names that were used for
 //both male *and* female babies.
 
+function only2(record) {
+    return record == 2;
+}
+
+let repeatedNames = nameArray.filter(only2);
+console.log(repeatedNames);
