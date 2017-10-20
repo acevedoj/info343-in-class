@@ -172,7 +172,7 @@ function descending(comparator) {
         // a comparator
         return -comparator(record1, record2);
     }
-}
+} 
 
 let byCountDescending = descending(byCount);
 sortedMales = BABYNAMES.filter(isMale).sort(byCountDescending);
@@ -366,6 +366,7 @@ let nameArray = Object.keys(BABYNAMES.reduce(countNames, {}));
 //both male *and* female babies.
 
 function only2(record) {
+    console.log(record);
     return record == 2;
 }
 
